@@ -1,0 +1,292 @@
+
+
+
+MANUAL DE COMPILACIÓN PARA EL SOC BLE NRF51822 EN LINUX CON EL COMPILADOR GCC-ARM Y EL SDK NRF51 DE
+                                NORDIC SEMICONDUCTORS EN SU VERSIÓN 10.0
+
+
+  **NOTA: LOS PROGRAMAS QUE SE COMPILAN CON ESTE MANUAL HACEN USO DEL SOFTDEVICE S110 DE NORDIC. 
+          (ver manual con SoftDevice de Nordic Semiconductors).
+
+  Escrito para la plantilla de projecto de aplicación BLE incluida en el SDK de Nordic Semiconductors.
+
+          Copyrigth© 2016 Alfredo Orozco de la Paz
+          alfredoopa@gmail.com
+
+
+################################################################################################################
+    ACTUALIZACIONES
+
+################################################################################################################
+
+################################################################################################################
+
+ARCHIVOS Y HERRAMIENAS NECESARIAS
+
+Para poder compilar un proyecto para el SOC NRF51822 bajo una plataforma linux, son necesarias varias
+herramientas de desarrollo: un compilador, en este caso el compilador para arquitecturas ARM, ya que el
+SOC cuenta con un procesador ARM Cortex-M0 y un SDK (Software Development Kit), que es proporcionado por
+Nordic Semiconductors e incluye una basta lista de bibliotecas y ejemplos para programar el SOC, sus
+periféricos y  aplicaciones BLE.
+
+Los programas necesarios son:
+
+    Compilador GCC-ARM: Para este maunal se usa el toolchian  gcc-arm-none-eabi-4_9 
+                        Puede descargarse de:   https://launchpad.net/gcc-arm-embedded
+
+    NRF51_SDK:          Para este manual se utiliza la versión 10.0
+                        Puede descargarse de:   https://developer.nordicsemi.com/
+ 
+    SEGGER JLink
+    Software:           Software para grabar el firmware en el SOC con el programador JLink
+                        Puede descargarse de:   https://www.segger.com/jlink-software.html
+
+
+################################################################################################################
+
+INSTALACIÓN DEL COMPILADOR GCC-ARM
+
+Para instalar el compilador, basta con descargar el archivo desde la página oficial y descomprimirlo.
+Por facilidad de programación y de configuración, es recomendable copiar la carpeta del toolchain en
+la carpeta /opt/.
+
+    *IMPORTANTE: la copia de los archivos se debe hacer como usuario root, ya que la carpeta /opt/
+                 es del sistema.
+
+################################################################################################################
+
+INSTALACIÓN DEL SOFTWARE JLink
+
+Para instalar el software del programador hay que descargarlo de la página oficial, es un instalador
+con la extension ".deb", lo único que hay que hacer es ejecutarlo y la instalación se hara automáticamente.
+
+Por default, la ruta de la carpeta donde se instalan los archivos del programador es:
+
+        /opt/SEGGER/JLink
+
+Para probar la instalación, en una terminal se debe ejecutar el comando:
+
+        $ JLinkExe
+
+Esto mostrará la linea de comandos del programador JLink
+
+
+################################################################################################################
+
+INSTALACIÓN Y CONFIGURACIÓN DEL SDK
+
+Para instalar el SKD, se debe descomprimir el archivo descargado, y de igual manera que el toolchain, copiar 
+su contenido en la carpeta /opt/nRF51_SDK_10.
+
+    *IMPORTANTE: la copia de los archivos se debe hacer como usuario root, ya que la carpeta /opt/
+                 es del sistema.
+
+Esta carpeta contiene todos los archivos necesarios para desarrollar aplicaciónes con el chip NRF51822 y
+otros de la familia NRF51.
+
+Se debe modificar el archivo makefile para linux en el cual se agrega la ruta donde se encuentra instalado
+el toolchain GCC-ARM. Este archivo se llama Makefile.posix y encuentra dentro del SDK en:
+      
+                                        componentes/toolchain/gcc.
+
+En este archivo se modifica la linea 
+        
+        GNU_INSTALL_ROOT := 
+
+Agregando la ruta del toolchain, que se encuentra en la carpeta /opt/:
+
+        GNU_INSTALL_ROOT := /opt/gcc-arm-none-eabi-4_9
+
+
+        *IMPORTANTE: para crear y modificar archivos dentro de la carpeta del SDK es necesario darle permisos
+                     al usuario, ya que al copiarla en /opt/ pertenece al sistema (root) y no al usuario, 
+                     para hacer esto se usa el comando:   $ sudo chown USUARIO /opt/CARPETA_DEL_SDK
+
+
+################################################################################################################
+
+COMPILACIÓN DE UN PROYECTO
+
+Este documento incluye una plantilla de proyecto para el SOC NRF51822 en un archivo comprimido llamado 
+nrf51822-gcc-linux-template.zip, el cual contiene la estructura siguiente
+
+|-nrf51822-gcc-linux-template/
+    |-- build/
+        |-- softdevice
+            -- nrf51_s110_8.0_softdevice.hex
+         -- Makefile
+         -- ble_app_gcc_nrf51.ld
+    |-- include
+        -- drivers
+           -- nrf_drv_config.h
+           -- pstorage_platform.h
+        -- services
+           -- ble_custom_service.h
+           -- ble_custom_service.c
+        -- ble
+           -- ble_inits.h
+           -- ble_inits.c
+           -- ble_events.h
+           -- ble_events.c
+        -- ble_params.h
+        -- ble400.h
+    -- LEEME.txt
+    -- main.c
+    
+
+En la carpeta build se encuentran los archivos Makefile, ble_app_gcc_nrf51.ld y el ejecutable del softdevice.    
+
+El archivo ble400.h define los pines para los botones, leds y conectores externos de la tarjeta BLE400.
+Si se usa aluna otra placa, el usuario puede crear su respectivo .h definiendo los recursos de la
+placa.
+
+La carpeta "drivers" contiene los archivos de configuración de los drivers ya sean los proporcionados
+por el SDK o los creados por el usuario. El archivo driv nrf_dvr_config.h define la configuración de 
+drivers para la inicializacion de sus periféricos, 
+este es usado por algunas librerías del SDK.
+
+El archivo pstorage_platform.h contiene definiciones para almecnar datos en la memoria flash.
+
+La carpeta "services" contiene los servicios de usuario que tendrá la aplicación, se incluten los archivos 
+ble_custom_service.h y ble_custom_service.c son las librerías que integran un servicio definido por el usuario.
+
+El achivo ble_params.h define los parámetros y configuraciónes de usuario necesarias para inicializar el Stack BLE.
+
+La carpeta "ble" contiene los archivos para inicializar y manejar los eventos del BLE y el SoftDevice.
+Se incluyen los archivos ble_events.c y ble_inits.c que contienen las funciones de inicializacion del 
+Bluetooth y las funciones para manejar los eventos de Bluetooth y Softdevice.
+
+Es necesario modificar el archivo Makefile, agregando correctamente la ruta del SDK en la linea 10:
+
+    SDK_PATH = /opt/"CARPETA_SDK"
+
+
+Para compilar, hay que entrar desde una terminal a la carpeta build del proyecto y se ejecuta el comando 
+"make", si todas las herramientes y el proyecto quedó configurado correctamente, la compilación no debe 
+mostrar errores.
+
+La compilación creará una carpeta llamada "_obj" donde se encuentran los archivos objeto generados por
+el compilador y la carpeta "bin", donde se encuentran los ejecutables .hex y .bin del programa.
+
+
+################################################################################################################
+
+AGREGAR LIBRERÍAS DEL SDK A NUESTRO PROYECTO
+
+Para usar las librerías incluidas en el SDK, a parte de incluirlas en nuestro main.c, se necesita modificar 
+el archivo makefile para agregar las rutas en las que se encuentran estas librerías, tanto la cabecera (.h) 
+como el archivo fuente (.c), de lo contrario el compilador mostrará errores de que no encuentra los archivos
+incluidos. Por ejemplo, si se quiere usar la librería delay, en el archivo makefile hay que buscar las lineas
+de donde incluyen los archivos:
+
+
+    --Para archivos fuente (.c):
+
+        #source common to all targets
+        C_SOURCE_FILES  = ../main.c 
+        C_SOURCE_FILES += $(SDK_PATH)/components/libraries/button/app_button.c 
+        C_SOURCE_FILES += $(SDK_PATH)/components/libraries/util/app_error.c 
+
+    --Para librerías (.h)
+
+        #includes common to all targets
+        INC_PATHS  = -I ../
+        INC_PATHS += -I ../include
+        INC_PATHS += -I ../include/services
+        INC_PATHS += -I ../include/config
+        INC_PATHS += -I $(SDK_PATH)/components/libraries/fds
+        INC_PATHS += -I $(SDK_PATH)/components/libraries/twi
+        INC_PATHS += -I $(SDK_PATH)/components/libraries/pwm
+
+
+Por ejemplo, para usar la librería nrf_delay habría que incluir primero la definición en el archivo main.c,
+despues agregar la ruta de carpeta del archivo fuente (.c) y al final la ruta de la libreria (.h), quedando algo como
+esto:
+        
+        #source common to all targets
+        C_SOURCE_FILES  = ../main.c 
+        C_SOURCE_FILES += $(SDK_PATH)/components/libraries/button/app_button.c 
+        C_SOURCE_FILES += $(SDK_PATH)/components/libraries/util/app_error.c 
+    ->  C_SOURCE_FILES += $(SDK_PATH)/components/drivers_nrf/delay/nrf_delay.c 
+
+        .
+        .
+        .
+
+        #includes common to all targets
+        INC_PATHS  = -I ../
+        INC_PATHS += -I ../include
+        INC_PATHS += -I ../include/services
+        INC_PATHS += -I ../include/config
+        INC_PATHS += -I $(SDK_PATH)/components/libraries/fds
+        INC_PATHS += -I $(SDK_PATH)/components/libraries/twi
+        INC_PATHS += -I $(SDK_PATH)/components/libraries/pwm
+    ->  INC_PATHS += -I$(SDK_PATH)/components/drivers_nrf/delay   
+
+
+Para agregar librerías y archivos propios, sólo hay que agregar la ruta de nuestros archivos de igual manera.
+
+################################################################################################################
+
+PROGRAMACIÓN DEL FIRMWARE EN EL CHIP
+
+
+ -> J-LINK SOFTWARE
+
+    Antes de programar el nuevo firmware para el chip, se necesita borrar completamente la memoria flash
+    ya que el firmware generado por esta plantilla no requiere el uso de la API SoftDevice, que es la
+    encargada de implementar el Stack BLE.
+
+    Para borrar la memoria flash del chip, hay que entrar  en una terminal y ejecutar los siguientes
+    comandos:
+
+        $JLinkExe
+
+        JLink>  device nrf51822_xxac
+        JLink>  w4 4001E504 2
+        JLink>  w4 4001E50C 1
+        JLink>  w4 4001E514 1
+        JLink>  r
+        JLink>  q
+
+    El comando "device nrf51822_xxac" selecciona el modelo del chip.
+    El comando "w4 4001e504 2"  permite el borrado de la flash (ver reference manual para los registros).
+    El comando "w4 4001e50C 1"  borra toda la flash de programa (ver reference manual para los registros).
+    El comando "w4 4001e50C 1"  borra la sección flash de información del usuario UICR (ver reference manual para los registros).
+    
+
+    Para programar el firmware con esta plantilla de ejemplo, se necesita el archivo ".hex" generado a la
+    hora de compilar, se encuentra en la carpeta "bin" del proyecto.
+
+    Entrar a una terminal y ejecutar los siguientes comandos:    
+
+        $ JlinkExe      
+
+        JLink>          
+        JLink> device nrf51822_xxac
+        JLink> w4 4001E504 1
+        JLink> loadfile /ruta/completa/del/archivo/.hex
+        JLink> r
+        JLink> g
+
+    El comando "w4 4001e504 1"  permite la escritura en flash (ver reference manual para los registros).
+    El comando "loadfile /ruta/completa/del/archivo/.hex" graba el programa con extensión .hex en el chip.
+    El comando "r" (reset) hace un reset de chip.
+    El comando "g" (go) ejecuta el último programa cargado en flash.
+
+    El archivo Makefile incluye estos y otros scripts para la programación del del firmware, los comandos disponibles para el programador JLink de Sergger son:
+
+                   install:  graba el archivo ejecutable en el NRF51822
+                     erase:  borra toda la memoria del NRF51822
+                     reset:  hace un reset del firmware del NRF51822
+        install-softdevice:  Graba el SoftDevice S110 en el NRF51822
+
+    para ejecutarlos solo hay que escribir en la terminal 
+
+        $ make install
+              ó
+        $ make erase
+              ó
+        $ make reset
+              ó
+        $ make install-softdevice

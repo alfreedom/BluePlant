@@ -1,0 +1,41 @@
+
+
+Actualizaciones del firmware Blue Plant v1.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+versión 1.0:    
+
+    ##  Alfredo Orozco de la Paz - 18/03/2016  ##
+        
+        + Agrega las bibliotecas (drivers) para lectura del sensor DS18B20.
+            - include/drivers/onewire.h
+            - include/drivers/onewire.c
+            - include/drivers/ds18b20.h
+            - include/drivers/ds18b20.c
+
+        + Implementa lectura del sensor DS18B20 y envío de la temperatura por Advertising.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+versión 1.1;
+    
+    ##  Daniel Sánchez Ovalle - 12/04/2016  ##
+
+        + Agrega la biblioteca (driver) para la lectura del sensor de luz LDR.
+            - include/drivers/light_sensor.h
+            - include/drivers/light_sensor.c
+
+        + Agrega la lectura del sensor de luz y envío de la lectura por Advertising.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+versión 1.2;
+    
+    ## Alfredo Orozco de la Paz - 15/04/2016 ##
+
+        + Agrega la biblioteca (driver) para la lectura del sensor de humedad en la tierra.
+            - include/drivers/soil_sensor.h
+            - include/drivers/soil_sensor.c
+
+        + Agregada la lectura del sensor de humedad en la tierra y envío de la lectura por Advertising.
+
+        + Cambia el numero de lecturas del sensor de luminosidad de 10 a 50.
+
